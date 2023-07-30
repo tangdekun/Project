@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+println("Derry ---> app Student hao 1")
+
+println "Derry ---> app Student hao 2"
+
+// 完整的方式  性能
+def androidID = rootProject.ext.androidID
+
+android {
+    compileSdkVersion androidID.compileSdkVersion
+    buildToolsVersion androidID.buildToolsVersion
+
+    defaultConfig {
+        applicationId appID.app
+        minSdkVersion androidID.minSdkVersion
+        targetSdkVersion androidID.targetSdkVersion
+        versionCode androidID.versionCode
+        versionName androidID.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // 让我的Java代码也可以用
+        // 给Java代码暴漏，标记，正式环境 和 测试环境 的标记
+        // 组件化 和 集成化 的时候需要
+        buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField("String", "debug", "\"${url.debug}\"")
+        }
+        release {
+            buildConfigField("String", "release", "\"${url.release}\"")
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    // 300 行
+   /* implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.0.1"
+    implementation "com.google.android.material:material:1.1.0"
+    implementation "androidx.vectordrawable:vectordrawable:1.1.0"
+    implementation "androidx.navigation:navigation-fragment:2.2.2"
+    implementation "androidx.navigation:navigation-ui:2.2.2"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"*/
+
+    // 一行搞定300行 循环搞定
+    dependenciesID.each {k,v -> implementation v}
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    if (isRelease) {
+        // 依附app壳
+        implementation project(':login')
+        implementation project(':register')
+    } else {
+        // 不能依附，因为 login register 都能独立运行啊，依附不了，否则报错
+    }
+}

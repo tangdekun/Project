@@ -1,0 +1,5 @@
+include ':register'
+include ':login'
+include ':library'
+include ':app'
+rootProject.name = "ModularProject"
